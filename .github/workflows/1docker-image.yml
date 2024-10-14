@@ -1,0 +1,40 @@
+name: Build and Push Docker Image
+
+# Hangi olaylarda bu işlemin tetikleneceğini belirtiyoruz
+on:
+  push:
+    branches:
+      - main  # Sadece main branch'e yapılan push işlemleri için
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Kodu checkout et (GitHub reposundan çek)
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Docker Buildx ayarla (ileri seviye Docker işlemleri için)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      # Docker Hub'a giriş yap
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: invenirecomtr  # Kullanıcı adı olarak doğrudan invenirecomtr kullanılıyor
+          password: dckr_pat_TXOeWELiZgHDdxsGW0LpKMYOEuU  # Token olarak sizin verdiğiniz Access Token kullanılıyor
+
+      # Docker imajı oluştur ve Docker Hub’a push et
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .  # Dockerfile'ın bulunduğu yol, bu durumda kök dizin
+          file: ./Dockerfile  # Dockerfile'ın adı ve yolu
+          push: true  # Docker Hub'a push edilmesini sağlar
+          tags: invenirecomtr/ai-invenire:latest  # Docker Hub'daki imaj ismi ve tag'i
+
+      # İsteğe bağlı: Eylem tamamlandığında bir mesaj göster
+      - name: Notify Success
+        run: echo "Docker image has been built and pushed to Docker Hub successfully."
